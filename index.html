@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>scanner-app</title>
+  <script>
+  window.cvReady = false;
+  function onOpenCvReady() {
+    window.cvReady = true;
+    // Dispatch a standard event that React can listen for later
+    window.dispatchEvent(new Event('opencv-ready'));
+  }
+</script>
+
+<script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady()" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
