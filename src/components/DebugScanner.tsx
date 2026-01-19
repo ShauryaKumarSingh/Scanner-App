@@ -77,41 +77,6 @@ const DebugScanner: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  // Helper: Run the computer vision logic
-//   const processImage = () => {
-//     if (!cvLoaded || !imageSrc || !canvasRef.current) return;
-
-//     const img = new Image();
-//     img.src = imageSrc;
-//     img.onload = () => {
-//       // @ts-ignore
-//       const cv = window.cv;
-      
-//       try {
-//         // Read image from the DOM <img /> element
-//         const src = cv.imread('uploaded-image'); // 'uploaded-image' is the ID we gave the img tag below
-//         const dst = new cv.Mat();
-
-//         // Convert to Grayscale (simplifies data for edge detection)
-//         cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-
-//         // Detect Edges (Canny algorithm)
-//         cv.Canny(src, dst, 50, 100, 3, false);
-
-//         // Show result on the canvas
-//         cv.imshow(canvasRef.current, dst);
-
-//         // CLEANUP MEMORY (Very important in WebAssembly)
-//         src.delete();
-//         dst.delete();
-//       } catch (err) {
-//         console.error("OpenCV Error:", err);
-//       }
-//     };
-//   };
-// src/components/DebugScanner.tsx
-
-// 1. Import the new function
 
 
 // ... inside the component ...
@@ -121,13 +86,15 @@ const DebugScanner: React.FC = () => {
 
     setTimeout(() => {
         // SAFETY CHECK: Ensure the canvas still exists when the timer fires
-const imgElement = document.getElementById('uploaded-image') as HTMLImageElement;
+// const imgElement = document.getElementById('uploaded-image') as HTMLImageElement;
 
 // 👇 Fix: Cast window to 'any' to stop the TypeScript error
-if (imgElement && (window as any).cv) {
-    scanDocument((window as any).cv, 'processed-canvas', imgElement);
-} else {
-    console.error("Image element not found or OpenCV not ready");
+if (imageSrc && (window as any).cv) {
+ 
+
+    scanDocument((window as any).cv, 'processed-canvas', imageSrc)
+      .then(() => console.log("High-Res Scan Complete"))
+      .catch(err => console.error("Scan Error", err));
 }
     }, 100);
 };
