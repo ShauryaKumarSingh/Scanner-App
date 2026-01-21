@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Scans collection - users can only read/write their own scans
+    match /scans/{scanId} {
+      // Allow read if user owns the scan
+      allow read: if isOwner(resource.data.userId);
+      
+      // Allow create if user is authenticated and userId matches
+      allow create: if isAuthenticated() 
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['userId', 'originalUrl', 'processedUrl', 'createdAt'])
+        && request.resource.data.userId is string
+        && request.resource.data.originalUrl is string
+        && request.resource.data.processedUrl is string;
+      
+      // Allow update if user owns the scan (for updating metadata)
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId; // Prevent userId changes
+      
+      // Allow delete if user owns the scan
+      allow delete: if isOwner(resource.data.userId);
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

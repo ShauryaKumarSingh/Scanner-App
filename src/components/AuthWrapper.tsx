@@ -29,8 +29,9 @@ export const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children 
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
+      setError(errorMessage);
     }
   };
 

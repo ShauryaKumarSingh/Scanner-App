@@ -30,7 +30,8 @@ export const convertPdfToImage = async (file: File): Promise<string> => {
   if (!context) throw new Error("Could not create canvas context");
 
   // 6. Render
-  // We cast to 'any' to avoid the strict TypeScript type mismatch
+  // We cast to 'any' to avoid strict TypeScript type mismatch with pdf.js typings
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await page.render({
     canvasContext: context,
     viewport: viewport

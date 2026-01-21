@@ -2,16 +2,23 @@
 import DebugScanner from './components/DebugScanner';
 import { AuthWrapper } from './components/AuthWrapper';
 import { Gallery } from './components/Gallary';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './styles.css';
 
 function App() {
   return (
-    <div className="app-container">
-      <AuthWrapper>
-        <DebugScanner />
-        <Gallery />
-      </AuthWrapper>
-    </div>
+    <ErrorBoundary>
+      <div className="app-container">
+        <AuthWrapper>
+          <ErrorBoundary>
+            <DebugScanner />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <Gallery />
+          </ErrorBoundary>
+        </AuthWrapper>
+      </div>
+    </ErrorBoundary>
   );
 }
 

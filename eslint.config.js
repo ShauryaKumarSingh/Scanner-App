@@ -19,5 +19,17 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Allow 'any' types for OpenCV.js API since it lacks complete TypeScript definitions
+      '@typescript-eslint/no-explicit-any': [
+        'warn',
+        {
+          ignoreRestArgs: true,
+        },
+      ],
+      // Allow setState in useEffect for initialization patterns
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])
+
