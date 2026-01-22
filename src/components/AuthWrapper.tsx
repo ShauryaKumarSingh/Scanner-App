@@ -1,17 +1,13 @@
 // src/components/AuthWrapper.tsx
 import React, { useState, useEffect } from 'react';
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, type User, signOut } from 'firebase/auth';
+import { onAuthStateChanged, type User, signOut } from 'firebase/auth';
+import { AuthPage } from './AuthPage';
 
 export const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [error, setError] = useState('');
 
-  // Listen for auth state changes (Senior pattern: avoids manual state management)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -20,33 +16,58 @@ export const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children 
     return unsubscribe;
   }, []);
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    try {
-      if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
-      setError(errorMessage);
-    }
-  };
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          backgroundColor: '#1f2029',
+          color: '#c4c3ca',
+          fontSize: '16px',
+          fontFamily: 'Poppins, sans-serif',
+        }}
+      >
+        Loading app...
+      </div>
+    );
+  }
 
-  if (loading) return <div className="loading-text">Loading app...</div>;
-
-  // If logged in, render the Scanner App (children) + a Logout button
   if (user) {
     return (
       <>
-        <header className="app-header">
-          <h1 className="app-logo">Scanner</h1>
-          <div className="user-profile">
-            <span className="user-email">{user.email}</span>
-            <button className="btn btn-icon" onClick={() => signOut(auth)} title="Sign Out">
-              &#8226;
+        <header
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '16px 24px',
+            backgroundColor: '#2a2b38',
+            borderBottom: '1px solid #444',
+          }}
+        >
+          <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 600, color: '#ffeba7' }}>Scanner</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ color: '#c4c3ca', fontSize: '14px' }}>{user.email}</span>
+            <button
+              onClick={() => signOut(auth)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#102770',
+                color: '#ffeba7',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 600,
+                transition: 'all 200ms',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ffeba7', e.currentTarget.style.color = '#102770')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#102770', e.currentTarget.style.color = '#ffeba7')}
+            >
+              Sign Out
             </button>
           </div>
         </header>
@@ -55,44 +76,5 @@ export const AuthWrapper: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   }
 
-  // If not logged in, show Login Form
-  return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">{isRegistering ? 'Create Account' : 'Login'}</h2>
-        <form onSubmit={handleAuth} className="auth-form">
-          <input 
-            type="email" 
-            placeholder="Email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-            className="auth-input"
-          />
-          <input 
-            type="password" 
-            placeholder="Password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-            className="auth-input"
-          />
-          <button type="submit" className="btn btn-primary">
-            {isRegistering ? 'Sign Up' : 'Sign In'}
-          </button>
-          {error && <p className="auth-error">{error}</p>}
-        </form>
-        
-        <p className="auth-toggle">
-          {isRegistering ? 'Already have an account?' : 'Need an account?'}
-          <button 
-            onClick={() => setIsRegistering(!isRegistering)} 
-            className="auth-toggle-btn"
-          >
-            {isRegistering ? 'Login here' : 'Register here'}
-          </button>
-        </p>
-      </div>
-    </div>
-  );
+  return <AuthPage onAuthSuccess={() => {}} />;
 };

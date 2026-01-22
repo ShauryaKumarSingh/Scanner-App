@@ -1,14 +1,8 @@
-// src/utils/scannerUtils.ts
 /**
- * Production-Grade Computer Vision Engine for Document Scanning
- * Features:
- * - Multi-document detection (iterates through all contours)
- * - Noise filtering (< 1% image area)
- * - Soft rectangle handling (4-8 corners for crinkled paper)
- * - Extreme corner extraction for non-rectangular shapes
- * - Confidence scoring (0-100 based on solidity, aspect ratio, corner count)
- * - High-resolution output (detection on 800px, warp on original)
- * - Proper memory management (OpenCV Mat cleanup)
+ * Document detection engine using OpenCV.js
+ * - Multi-document detection with noise filtering
+ * - Adaptive thresholds for various lighting conditions
+ * - Confidence scoring for output quality
  */
 
 // Type definitions
@@ -21,11 +15,11 @@ export interface ScannedDoc {
   id: string;
   blob: Blob;
   dataUrl: string;
-  confidence: number; // Score 0-100
+  confidence: number;
   corners: Point[];
 }
 
-// OpenCV types (minimal typing for window.cv)
+// OpenCV interface
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface OpenCV {
   Mat: new () => any;

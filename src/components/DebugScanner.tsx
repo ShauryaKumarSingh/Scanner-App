@@ -1,4 +1,3 @@
-// src/components/DebugScanner.tsx
 import React, { useState, useRef } from 'react';
 import { useOpenCv } from '../hooks/UseOpenCv';
 import { scanDocument, type ScannedDoc, type Point } from '../utils/scannerUtils';
@@ -9,7 +8,7 @@ import { ManualCropEditor } from './ManualCropEditor';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const DebugScanner: React.FC = () => {
-  const cvLoaded = useOpenCv(); // Hook returns boolean directly
+  const cvLoaded = useOpenCv();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [scannedDocs, setScannedDocs] = useState<ScannedDoc[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,7 +22,6 @@ const DebugScanner: React.FC = () => {
     window.dispatchEvent(new CustomEvent('scanSaved'));
   };
 
-  // Download image to PC
   const downloadImage = (dataUrl: string, filename: string) => {
     try {
       const link = document.createElement('a');
@@ -38,16 +36,13 @@ const DebugScanner: React.FC = () => {
     }
   };
 
-  // Helper: Process file (supports images and PDFs)
   const processFile = async (file: File) => {
     try {
       let url = '';
 
-      // Check if it's a PDF
       if (file.type === 'application/pdf') {
         url = await convertPdfToImage(file);
       } else if (file.type.startsWith('image/')) {
-        // It's an image, create data URL
         url = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (event) => {
@@ -65,14 +60,13 @@ const DebugScanner: React.FC = () => {
       }
 
       setImageSrc(url);
-      setScannedDocs([]); // Clear previous results
+      setScannedDocs([]);
     } catch (err) {
       console.error('Error processing file:', err);
       alert(err instanceof Error ? err.message : 'Failed to load file. Please try a valid image or PDF.');
     }
   };
 
-  // 1. Handle File Upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -126,13 +120,27 @@ const DebugScanner: React.FC = () => {
       
       if (docs.length > 0) {
         setScannedDocs(docs);
-        console.log(`Success: Found ${docs.length} documents.`);
+        console.log(`✅ Success: Found ${docs.length} document(s).`);
       } else {
-        alert("No clear document found. Try a darker background or better lighting.");
+        // Provide helpful suggestions to user
+        const suggestions = [
+          "📷 Ensure the document edges are clearly visible",
+          "💡 Check your lighting - avoid shadows on the document",
+          "🎯 Ensure the entire document is in frame",
+          "📄 For best results, place the document on a contrasting background",
+          "🔄 Try rotating your device or camera",
+          "✨ Make sure the document is not too small or crumpled"
+        ];
+        const randomSuggestions = suggestions.sort(() => Math.random() - 0.5).slice(0, 2).join("\n");
+        
+        alert(
+          `❌ No clear document found.\n\nTry these tips:\n${randomSuggestions}`
+        );
       }
     } catch (err) {
       console.error("Scan failed:", err);
-      alert("Error processing image. See console for details.");
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      alert(`❌ Error processing image:\n${errorMsg}\n\nMake sure:\n- Image format is supported\n- File size is reasonable\n- Document has clear edges`);
     } finally {
       setIsProcessing(false);
     }
